@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1",
+    "titulo": "The Dark Side of the Moon",
+    "artista": "Pink Floyd",
+    "preco": 189.90,
+    "categoria": "Vinil",
+    "imagem": "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&q=80&w=500",
+    "descricao": "Edição especial em excelente estado. Todas as faixas originais preservadas com qualidade premium. Perfeito para colecionadores e amantes de música física."
+  },
+  {
+    "id": "2",
+    "titulo": "The Wall",
+    "artista": "Pink Floyd",
+    "preco": 210.00,
+    "categoria": "Vinil",
+    "imagem": "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&q=80&w=500",
+    "descricao": "Álbum duplo clássico, remasterizado em vinil de alta fidelidade."
+  },
+  {
+    "id": "3",
+    "titulo": "Abbey Road",
+    "artista": "The Beatles",
+    "preco": 150.00,
+    "categoria": "CD",
+    "imagem": "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&q=80&w=500",
+    "descricao": "Versão em CD nacional com encarte original completo."
+  },
+  {
+    "id": "4",
+    "titulo": "Master of Puppets",
+    "artista": "Metallica",
+    "preco": 95.00,
+    "categoria": "K7",
+    "imagem": "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&q=80&w=500",
+    "descricao": "Fita cassete rara para colecionadores, reprodução perfeita."
+  }
+]
