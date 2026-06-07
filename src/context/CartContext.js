@@ -5,7 +5,6 @@ export const CartContext = createContext();
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
-  // Adiciona item ou incrementa se já existir
   const addToCart = (produto) => {
     setCart((prevCart) => {
       const itemExiste = prevCart.find(item => item.id === produto.id);
@@ -18,12 +17,10 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // Remove o item completamente
   const removeFromCart = (id) => {
     setCart(prevCart => prevCart.filter(item => item.id !== id));
   };
 
-  // Altera quantidade diretamente (+ ou - no botão da tela de carrinho)
   const updateQuantity = (id, novaQuantidade) => {
     if (novaQuantidade <= 0) {
       removeFromCart(id);
@@ -36,10 +33,8 @@ export const CartProvider = ({ children }) => {
     );
   };
 
-  // Limpa o carrinho ao finalizar compra
   const clearCart = () => setCart([]);
 
-  // Cálculos performáticos automáticos (Sempre atualizam se o "cart" mudar)
   const cartCount = useMemo(() => {
     return cart.reduce((total, item) => total + item.quantidade, 0);
   }, [cart]);

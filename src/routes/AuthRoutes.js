@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import LoginScreen from '../screens/auth/LoginScreen.js'; // <-- Verifique se essa linha existe
+import LoginScreen from '../screens/auth/LoginScreen.js';
 
 const RegisterMock = () => <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0D0D0D' }}><Text style={{ color: '#fff' }}>Tela de Registro (Em breve)</Text></View>;
 

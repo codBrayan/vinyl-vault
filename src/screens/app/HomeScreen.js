@@ -17,10 +17,8 @@ export default function HomeScreen() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // 1. Estado para armazenar a categoria selecionada (padrão: 'All')
   const [selectedCategory, setSelectedCategory] = useState('All');
 
-  // Lista de categorias igual ao layout do seu projeto
   const categories = ['All', 'Vinil', 'K7', 'CD'];
 
   const { theme } = useContext(ThemeContext);

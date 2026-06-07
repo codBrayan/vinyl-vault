@@ -3,17 +3,17 @@ import React, { createContext, useState } from 'react';
 export const themes = {
   dark: {
     type: 'dark',
-    background: '#120F0D',       // O preto aquecido/marrom escuro de fundo
-    surface: '#1A1613',          // O fundo dos cards e inputs escuros
-    text: '#FFFFFF',             // Texto principal branco
-    textSecondary: '#8E8680',    // Subtítulos e dados secundários cinza-brown
-    primary: '#C6734B',          // O Laranja Terracota dos botões principais
-    border: '#2C2521',           // Bordas sutis integradas ao fundo
-    loginBg: '#F9EFEA',          // O fundo creme/off-white exclusivo da tela de login
-    loginInput: '#F5E6DF',       // O fundo levemente mais escuro dos inputs do login
-    loginText: '#4A3B32',        // Texto escuro para a tela de login
+    background: '#120F0D',
+    surface: '#1A1613',
+    text: '#FFFFFF',
+    textSecondary: '#8E8680',
+    primary: '#C6734B',
+    border: '#2C2521',
+    loginBg: '#F9EFEA',
+    loginInput: '#F5E6DF',
+    loginText: '#4A3B32',
   },
-  // Mantemos a estrutura caso precise futuramente
+
   light: {
     type: 'light',
     background: '#F9EFEA',

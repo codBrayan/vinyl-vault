@@ -6,7 +6,12 @@ import {
   TouchableOpacity, 
   View, 
   ActivityIndicator, 
-  Alert 
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard    
 } from 'react-native';
 import { AuthContext } from '../../context/AuthContext.js';
 import { ThemeContext } from '../../context/ThemeContext.js';
@@ -34,58 +39,70 @@ export default function LoginScreen({ navigation }) {
   const styles = createStyles(theme);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        {/* Placeholder para o Vinil do protótipo image_31a723.png */}
-        <View style={styles.vinilPlaceholder}>
-          <Text style={{ fontSize: 40 }}>💿</Text>
-        </View>
-        <Text style={styles.logoText}>Vinyl Vault</Text>
-      </View>
-
-      <View style={styles.formContainer}>
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Digite o seu email"
-          placeholderTextColor="#A59992"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-
-        <Text style={styles.label}>Senha</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Digite a sua senha"
-          placeholderTextColor="#A59992"
-          value={senha}
-          onChangeText={setSenha}
-          secureTextEntry
-          autoCapitalize="none"
-        />
-
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={handleLogin}
-          disabled={loading}
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView 
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
         >
-          {loading ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.buttonText}>Fazer Login</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </View>
+          <View style={styles.headerContainer}>
+            <View style={styles.vinilPlaceholder}>
+              <Text style={{ fontSize: 40 }}>💿</Text>
+            </View>
+            <Text style={styles.logoText}>Vinyl Vault</Text>
+          </View>
+
+          <View style={styles.formContainer}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Digite o seu email"
+              placeholderTextColor="#A59992"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+
+            <Text style={styles.label}>Senha</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Digite a sua senha"
+              placeholderTextColor="#A59992"
+              value={senha}
+              onChangeText={setSenha}
+              secureTextEntry
+              autoCapitalize="none"
+            />
+
+            <TouchableOpacity 
+              style={styles.button} 
+              onPress={handleLogin}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Text style={styles.buttonText}>Fazer Login</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
 const createStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.loginBg || '#F9EFEA', // Garante o fallback para o fundo creme de image_31a723.png
+    backgroundColor: theme.loginBg || '#F9EFEA', 
+  },
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: 'center',
     padding: 24,
   },
@@ -105,7 +122,7 @@ const createStyles = (theme) => StyleSheet.create({
   logoText: {
     fontSize: 34,
     fontWeight: 'bold',
-    color: '#C6734B', // Terracota idêntico ao image_31a723.png
+    color: '#C6734B', 
     letterSpacing: 1,
   },
   formContainer: {

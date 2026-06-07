@@ -77,7 +77,6 @@ export default function CartScreen() {
           <Text style={styles.vazioSubtexto}>Adicione alguns vinis na aba Home!</Text>
         </View>
       ) : (
-        /* CORREÇÃO AQUI: Envolvendo corretamente o bloco do ELSE em um Fragment único */
         <>
           <FlatList
             data={cart}
