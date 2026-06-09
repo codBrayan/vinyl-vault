@@ -12,8 +12,12 @@ import {
 import { productService } from '../../services/productService.js'; 
 import { ThemeContext } from '../../context/ThemeContext.js';
 import { CartContext } from '../../context/CartContext.js';
+import { AuthContext } from '../../context/AuthContext.js';
 
 export default function HomeScreen() {
+  const { usuario } = useContext(AuthContext);
+  const nameUser = usuario ? usuario.nome : 'Usuário';
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -75,6 +79,7 @@ export default function HomeScreen() {
     <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
       <View style={styles.header}>
         <Text style={styles.brandTitle}>🔸 Vinyl Vault</Text>
+        <Text style={styles.headerName}>Olá, {nameUser}!</Text>
         <Text style={styles.headerSubtitle}>Descubra sons em formato físico</Text>
         <Text style={styles.headerTagline}>Vinis, fitas K7 e CDs para colecionadores</Text>
       </View>
@@ -137,11 +142,16 @@ const createStyles = (theme) => StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  headerName: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginTop: 4,
+  },
   headerSubtitle: {
     fontSize: 26,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    marginTop: 16,
   },
   headerTagline: {
     fontSize: 13,

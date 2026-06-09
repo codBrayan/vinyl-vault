@@ -19,8 +19,9 @@ import { ThemeContext } from '../../context/ThemeContext.js';
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [nome, setNome] = useState('');
   
-  const { login, loading, erro } = useContext(AuthContext);
+  const { login, loading, erro} = useContext(AuthContext);
   const { theme } = useContext(ThemeContext);
 
   const handleLogin = async () => {
