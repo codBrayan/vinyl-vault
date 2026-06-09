@@ -125,11 +125,11 @@ export default function HomeScreen() {
 const createStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#120F0D', 
+    backgroundColor: theme.background,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#120F0D',
+    backgroundColor: theme.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -138,24 +138,24 @@ const createStyles = (theme) => StyleSheet.create({
     marginTop: 10,
   },
   brandTitle: {
-    color: '#C6734B', 
+    color: theme.primary,
     fontSize: 16,
     fontWeight: 'bold',
   },
   headerName: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: theme.text,
     marginTop: 4,
   },
   headerSubtitle: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: theme.text,
   },
   headerTagline: {
     fontSize: 13,
-    color: '#8E8680',
+    color: theme.textSecondary,
     marginTop: 6,
   },
   categoriesContainer: {
@@ -165,14 +165,14 @@ const createStyles = (theme) => StyleSheet.create({
     marginBottom: 24,
   },
   pill: {
-    backgroundColor: '#231D19',
+    backgroundColor: theme.type === 'dark' ? '#231D19' : '#EBE0DA',
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 20,
     marginRight: 8,
   },
   pillActive: {
-    backgroundColor: '#C6734B',
+    backgroundColor: theme.primary, // 👈 Mudou de '#C6734B'
   },
   pillTextActive: {
     color: '#FFFFFF',
@@ -180,7 +180,7 @@ const createStyles = (theme) => StyleSheet.create({
     fontSize: 13,
   },
   pillText: {
-    color: '#8E8680',
+    color: theme.textSecondary,
     fontSize: 13,
   },
   sectionTitleContainer: {
@@ -191,12 +191,12 @@ const createStyles = (theme) => StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    color: '#FFFFFF',
+    color: theme.text,
     fontSize: 16,
     fontWeight: 'bold',
   },
   sectionCount: {
-    color: '#5A524C',
+    color: theme.textSecondary,
     fontSize: 13,
   },
   listContainer: {
@@ -209,9 +209,11 @@ const createStyles = (theme) => StyleSheet.create({
   card: {
     width: '48%',
     marginBottom: 20,
-    backgroundColor: '#1A1613', 
+    backgroundColor: theme.surface, // 👈 Mudou de '#1A1613'
     borderRadius: 8,
     overflow: 'hidden',
+    borderWidth: theme.type === 'light' ? 1 : 0,
+    borderColor: theme.border,
   },
   cover: {
     width: '100%',
@@ -222,13 +224,13 @@ const createStyles = (theme) => StyleSheet.create({
     padding: 10,
   },
   artist: {
-    color: '#8E8680',
+    color: theme.textSecondary,
     fontSize: 10,
     textTransform: 'uppercase',
     fontWeight: '700',
   },
   title: {
-    color: '#FFFFFF',
+    color: theme.text,
     fontSize: 13,
     fontWeight: '600',
     marginTop: 2,
@@ -240,12 +242,12 @@ const createStyles = (theme) => StyleSheet.create({
     marginTop: 8,
   },
   price: {
-    color: '#C6734B',
+    color: theme.primary,
     fontSize: 14,
     fontWeight: 'bold',
   },
   miniButton: {
-    backgroundColor: '#2C2521',
+    backgroundColor: theme.type === 'dark' ? '#2C2521' : '#EBE0DA',
     width: 22,
     height: 22,
     borderRadius: 11,
@@ -253,7 +255,7 @@ const createStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
   },
   miniButtonText: {
-    color: '#FFFFFF',
+    color: theme.type === 'dark' ? '#FFFFFF' : theme.text,
     fontSize: 12,
     fontWeight: 'bold',
   },

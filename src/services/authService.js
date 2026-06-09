@@ -13,5 +13,25 @@ export const authService = {
         }
       }, 600);
     });
+  },
+  register: async (nome, email, senha) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const emailExistente = usersMock.some(u => u.email === email);
+        if (emailExistente) {
+          reject(new Error("E-mail já cadastrado."));
+        } else {
+          const novoUsuario = {
+            id: Date.now(),
+            nome,
+            email,
+            senha
+          };
+          usersMock.push(novoUsuario);
+          const { senha, ...dadosUsuario } = novoUsuario;
+          resolve(dadosUsuario);
+        }
+      }, 600);
+    });
   }
 };

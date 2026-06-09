@@ -90,6 +90,12 @@ export default function LoginScreen({ navigation }) {
                 <Text style={styles.buttonText}>Fazer Login</Text>
               )}
             </TouchableOpacity>
+            <TouchableOpacity 
+              style={{ marginTop: 16, alignSelf: 'center' }} 
+              onPress={() => navigation.navigate('Register')}
+            >
+              <Text style={{ color: '#C6734B' }}>Não tem uma conta? Cadastre-se</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </TouchableWithoutFeedback>
