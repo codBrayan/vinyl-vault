@@ -5,15 +5,15 @@ export const CartContext = createContext();
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
-  const addToCart = (produto) => {
+  const addToCart = (produto, quantidadeSelecionada = 1) => {
     setCart((prevCart) => {
       const itemExiste = prevCart.find(item => item.id === produto.id);
       if (itemExiste) {
         return prevCart.map(item =>
-          item.id === produto.id ? { ...item, quantidade: item.quantidade + 1 } : item
+          item.id === produto.id ? {...item, quantidade: item.quantidade + quantidadeSelecionada} : item
         );
       }
-      return [...prevCart, { ...produto, quantidade: 1 }];
+      return [...prevCart, { ...produto, quantidade: quantidadeSelecionada}];
     });
   };
 

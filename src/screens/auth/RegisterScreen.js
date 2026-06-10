@@ -121,7 +121,6 @@ const createStyles = (theme) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
-    // Sombra leve para o tema claro ganhar destaque
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: theme.type === 'light' ? 0.1 : 0,

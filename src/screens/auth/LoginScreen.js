@@ -2,16 +2,16 @@ import React, { useState, useContext } from 'react';
 import { 
   StyleSheet, 
   Text, 
+  View, 
   TextInput, 
   TouchableOpacity, 
-  View, 
   ActivityIndicator, 
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  TouchableWithoutFeedback,
-  Keyboard    
+  KeyboardAvoidingView, 
+  Platform, 
+  TouchableWithoutFeedback, 
+  Keyboard, 
+  ScrollView, 
+  Alert 
 } from 'react-native';
 import { AuthContext } from '../../context/AuthContext.js';
 import { ThemeContext } from '../../context/ThemeContext.js';
@@ -19,9 +19,8 @@ import { ThemeContext } from '../../context/ThemeContext.js';
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [nome, setNome] = useState('');
   
-  const { login, loading, erro} = useContext(AuthContext);
+  const { login, loading, erro } = useContext(AuthContext);
   const { theme } = useContext(ThemeContext);
 
   const handleLogin = async () => {
@@ -61,7 +60,7 @@ export default function LoginScreen({ navigation }) {
             <TextInput
               style={styles.input}
               placeholder="Digite o seu email"
-              placeholderTextColor="#A59992"
+              placeholderTextColor={theme.type === 'dark' ? '#8E8680' : '#A59992'}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -72,7 +71,7 @@ export default function LoginScreen({ navigation }) {
             <TextInput
               style={styles.input}
               placeholder="Digite a sua senha"
-              placeholderTextColor="#A59992"
+              placeholderTextColor={theme.type === 'dark' ? '#8E8680' : '#A59992'}
               value={senha}
               onChangeText={setSenha}
               secureTextEntry
@@ -90,11 +89,12 @@ export default function LoginScreen({ navigation }) {
                 <Text style={styles.buttonText}>Fazer Login</Text>
               )}
             </TouchableOpacity>
+
             <TouchableOpacity 
-              style={{ marginTop: 16, alignSelf: 'center' }} 
+              style={styles.linkButton} 
               onPress={() => navigation.navigate('Register')}
             >
-              <Text style={{ color: '#C6734B' }}>Não tem uma conta? Cadastre-se</Text>
+              <Text style={styles.linkButtonText}>Não tem uma conta? Cadastre-se</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -106,7 +106,8 @@ export default function LoginScreen({ navigation }) {
 const createStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.loginBg || '#F9EFEA', 
+
+    backgroundColor: theme.type === 'dark' ? theme.background : (theme.loginBg || '#F9EFEA'), 
   },
   scrollContainer: {
     flexGrow: 1,
@@ -121,7 +122,7 @@ const createStyles = (theme) => StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#C6734B',
+    backgroundColor: theme.primary, 
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
@@ -129,30 +130,32 @@ const createStyles = (theme) => StyleSheet.create({
   logoText: {
     fontSize: 34,
     fontWeight: 'bold',
-    color: '#C6734B', 
+    color: theme.primary, 
     letterSpacing: 1,
   },
   formContainer: {
     backgroundColor: 'transparent',
   },
   label: {
-    color: '#4A3B32',
+  
+    color: theme.type === 'dark' ? theme.text : (theme.loginText || '#4A3B32'),
     fontSize: 14,
     fontWeight: '500',
     marginBottom: 8,
     marginTop: 16,
   },
   input: {
-    backgroundColor: 'transparent', 
-    color: '#4A3B32',
+
+    backgroundColor: theme.type === 'dark' ? '#1A1613' : (theme.loginInput || 'transparent'), 
+    color: theme.type === 'dark' ? theme.text : (theme.loginText || '#4A3B32'),
     padding: 14,
     borderRadius: 4, 
     borderWidth: 1,
-    borderColor: '#C5B5AD', 
+    borderColor: theme.type === 'dark' ? theme.border : '#C5B5AD', 
     fontSize: 16,
   },
   button: {
-    backgroundColor: '#C6734B', 
+    backgroundColor: theme.primary, 
     padding: 16,
     borderRadius: 6,
     alignItems: 'center',
@@ -163,4 +166,12 @@ const createStyles = (theme) => StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  linkButton: {
+    marginTop: 16, 
+    alignSelf: 'center',
+  },
+  linkButtonText: {
+    color: theme.primary,
+    fontWeight: '500',
+  }
 });

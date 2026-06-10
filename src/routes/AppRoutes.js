@@ -1,13 +1,16 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
+import ProductScreen from '../screens/app/ProductScreen.js';
 import HomeScreen from '../screens/app/HomeScreen.js';
 import CartScreen from '../screens/app/CartScreen.js';
 import ProfileScreen from '../screens/app/ProfileScreen.js';
 
+const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-export default function AppRoutes() {
+export function TabRoutes() {
   return (
     <Tab.Navigator 
       screenOptions={{ 
@@ -15,9 +18,7 @@ export default function AppRoutes() {
         tabBarStyle: { 
           backgroundColor: '#120F0D', 
           borderTopColor: '#1A1613', 
-          height: 85,          
-          paddingBottom: 20,   
-          paddingTop: 10
+          height: 85,  
         },
         tabBarActiveTintColor: '#C6734B', 
         tabBarInactiveTintColor: '#5A524C'  
@@ -51,5 +52,14 @@ export default function AppRoutes() {
         }} 
       />
     </Tab.Navigator>
+  );
+}
+
+export default function AppRoutes() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MainTabs" component={TabRoutes} />
+      <Stack.Screen name="ProductScreen" component={ProductScreen} />
+    </Stack.Navigator>
   );
 }

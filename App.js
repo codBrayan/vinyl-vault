@@ -5,7 +5,7 @@ import { ThemeProvider } from './src/context/ThemeContext.js';
 import { AuthProvider } from './src/context/AuthContext.js';
 import { CartProvider } from './src/context/CartContext.js';
 import Routes from './src/routes/index.js';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 
 export default function App() {
   return (

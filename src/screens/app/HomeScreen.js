@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { 
   StyleSheet, 
   Text, 
@@ -13,8 +13,11 @@ import { productService } from '../../services/productService.js';
 import { ThemeContext } from '../../context/ThemeContext.js';
 import { CartContext } from '../../context/CartContext.js';
 import { AuthContext } from '../../context/AuthContext.js';
+import { Ionicons } from '@expo/vector-icons';
 
-export default function HomeScreen() {
+
+
+export default function HomeScreen({navigation}) {
   const { usuario } = useContext(AuthContext);
   const nameUser = usuario ? usuario.nome : 'Usuário';
 
@@ -56,27 +59,30 @@ export default function HomeScreen() {
 
   const filteredProducts = selectedCategory === 'All' 
     ? products 
-    : products.filter(item => (item.category || item.categoria) === selectedCategory);
+    : products.filter(item => (item.categoria) === selectedCategory);
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.card} onPress={() => addToCart(item)} activeOpacity={0.8}>
-      <Image source={{ uri: item.image || item.imagem || item.cover }} style={styles.cover} />
+    <TouchableOpacity style={styles.card} 
+      onPress={() => navigation.navigate('ProductScreen', { item })} 
+      activeOpacity={0.8}
+
+    >
+      <Image source={{ uri: item.imagem}} style={styles.cover} />
       <View style={styles.infoContainer}>
-        <Text style={styles.artist} numberOfLines={1}>{item.artist || item.artista}</Text>
-        <Text style={styles.title} numberOfLines={1}>{item.name || item.nome || item.title}</Text>
-        
+        <Text style={styles.artist} numberOfLines={1}>{item.artista}</Text>
+        <Text style={styles.title} numberOfLines={1}>{item.titulo}</Text>
         <View style={styles.priceContainer}>
-          <Text style={styles.price}>R${(item.price || item.preco).toFixed(2).replace('.', ',')}</Text>
-          <View style={styles.miniButton}>
-            <Text style={styles.miniButtonText}>+</Text>
-          </View>
+          <Text style={styles.price}>R${(item.preco).toFixed(2).replace('.', ',')}</Text>
+          <TouchableOpacity style={styles.miniButton} onPress={() => addToCart(item)}>
+            <Ionicons name="cart-outline"></Ionicons>
+          </TouchableOpacity>
         </View>
       </View>
     </TouchableOpacity>
   );
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.brandTitle}>🔸 Vinyl Vault</Text>
         <Text style={styles.headerName}>Olá, {nameUser}!</Text>
@@ -118,7 +124,7 @@ export default function HomeScreen() {
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -172,7 +178,7 @@ const createStyles = (theme) => StyleSheet.create({
     marginRight: 8,
   },
   pillActive: {
-    backgroundColor: theme.primary, // 👈 Mudou de '#C6734B'
+    backgroundColor: theme.primary,
   },
   pillTextActive: {
     color: '#FFFFFF',
@@ -209,7 +215,7 @@ const createStyles = (theme) => StyleSheet.create({
   card: {
     width: '48%',
     marginBottom: 20,
-    backgroundColor: theme.surface, // 👈 Mudou de '#1A1613'
+    backgroundColor: theme.surface, 
     borderRadius: 8,
     overflow: 'hidden',
     borderWidth: theme.type === 'light' ? 1 : 0,
@@ -239,7 +245,7 @@ const createStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 10,
   },
   price: {
     color: theme.primary,
@@ -247,7 +253,7 @@ const createStyles = (theme) => StyleSheet.create({
     fontWeight: 'bold',
   },
   miniButton: {
-    backgroundColor: theme.type === 'dark' ? '#2C2521' : '#EBE0DA',
+    backgroundColor: theme.type === 'dark' ? '#c6734b' : '#EBE0DA',
     width: 22,
     height: 22,
     borderRadius: 11,
