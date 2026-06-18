@@ -1,9 +1,52 @@
-import React, { createContext, useState, useMemo } from 'react';
+import React, { createContext, useState, useMemo, useEffect, useContext } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from './AuthContext.js'; 
 
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
+  const { usuario } = useContext(AuthContext); 
   const [cart, setCart] = useState([]);
+
+  const getCartKey = () => usuario ? `@vinyl_vault:cart_${usuario.id}` : null;
+
+  useEffect(() => {
+    async function loadStoredCart() {
+      const key = getCartKey();
+      if (!key) {
+        setCart([]);
+        return;
+      }
+      try {
+        const storedData = await AsyncStorage.getItem(key);
+        if (storedData) {
+          setCart(JSON.parse(storedData));
+        } else {
+          setCart([]);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar o carrinho do AsyncStorage:", error);
+      }
+    }
+    loadStoredCart();
+  }, [usuario]);
+
+  useEffect(() => {
+    async function saveCartToStorage() {
+      const key = getCartKey();
+      if (!key) return;
+
+      try {
+        await AsyncStorage.setItem(key, JSON.stringify(cart));
+      } catch (error) {
+        console.error("Erro ao salvar o carrinho no AsyncStorage:", error);
+      }
+    }
+
+    if (usuario) {
+      saveCartToStorage();
+    }
+  }, [cart, usuario]);
 
   const addToCart = (produto, quantidadeSelecionada = 1) => {
     setCart((prevCart) => {

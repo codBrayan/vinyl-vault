@@ -1,34 +1,77 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { 
-  StyleSheet, 
-  Text, 
-  Image, 
-  TouchableOpacity, 
-  View,
-  ScrollView
+  StyleSheet, Text, Image, TouchableOpacity, 
+  View, ScrollView, ActivityIndicator, Alert
 } from 'react-native';
 import { ThemeContext } from '../../context/ThemeContext.js';
 import { CartContext } from '../../context/CartContext.js';
+import { AuthContext } from '../../context/AuthContext.js';
+import { favoritesService } from '../../services/favoritesServices.js';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function ProductScreen({ route, navigation }) {
-  const { item } = route.params;
+  const item = route?.params?.item || null; 
+  
   const { theme } = useContext(ThemeContext);
   const { addToCart } = useContext(CartContext);
-  const [quantity, setQuantity] = useState(1);
-  const insets = useSafeAreaInsets();
+  const { usuario } = useContext(AuthContext);
 
+  const isAdmin = usuario?.role === 'admin'; 
+  const userId = usuario?.id;
+
+  const [quantity, setQuantity] = useState(1);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [loadingFav, setLoadingFav] = useState(true);
+  
+  const insets = useSafeAreaInsets();
   const styles = createStyles(theme);
 
-  function sumQuantity() {
-    setQuantity(quantity + 1);
-  }
-
-  function subtractQuantity() {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
+  useEffect(() => {
+    if (item && userId && !isAdmin) {
+      checkFavoriteStatus();
+    } else {
+      setLoadingFav(false);
     }
+  }, [item, userId]);
+
+  const checkFavoriteStatus = async () => {
+    setLoadingFav(true);
+    const status = await favoritesService.checkIsFavorite(userId, item.id);
+    setIsFavorite(status);
+    setLoadingFav(false);
+  };
+
+  const toggleFavorite = async () => {
+    if (!userId) return;
+    
+    const novoStatus = !isFavorite;
+    setIsFavorite(novoStatus); 
+
+    try {
+      if (novoStatus) {
+        await favoritesService.addFavorite(userId, item);
+      } else {
+        await favoritesService.removeFavorite(userId, item.id);
+      }
+    } catch (error) {
+      setIsFavorite(!novoStatus);
+      Alert.alert("Erro", "Não foi possível atualizar os favoritos.");
+    }
+  };
+
+  function sumQuantity() { setQuantity(quantity + 1); }
+  function subtractQuantity() { if (quantity > 1) setQuantity(quantity - 1); }
+
+  if (!item) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={{ color: theme.text }}>Produto não encontrado.</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginTop: 20 }}>
+          <Text style={{ color: theme.primary }}>Voltar</Text>
+        </TouchableOpacity>
+      </View>
+    );
   }
 
   return (
@@ -37,173 +80,214 @@ export default function ProductScreen({ route, navigation }) {
         style={styles.closeButtonContainer} 
         onPress={() => navigation.goBack()}
       >
-        <Ionicons name="close" size={26} color={theme.text} />
+        <Ionicons name="close" size={28} color={theme.text} />
       </TouchableOpacity>
 
-       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
-        <Image source={{ uri: item.imagem || item.image || item.cover }} style={styles.imagem} />
+        <View style={styles.imageWrapper}>
+          <Image source={{ uri: item.imagem || 'https://via.placeholder.com/320' }} style={styles.imagem} />
+        </View>
         
-        <Text style={styles.categoryItem}>{(item.categoria || item.category).toUpperCase()}</Text>
-        <Text style={styles.title}>{item.titulo || item.name || item.title}</Text>
-        <Text style={styles.artist}>{(item.artista || item.artist).toUpperCase()}</Text>
+        <Text style={styles.categoryItem}>{(item.categoria || 'Sem categoria').toUpperCase()}</Text>
         
-        <Text style={styles.description}>{item.descricao || item.description}</Text>
+        <Text style={styles.title}>{item.titulo || item.nome}</Text>
+        <Text style={styles.artist}>{item.artista ? item.artista.toUpperCase() : 'ARTISTA DESCONHECIDO'}</Text>
+        
+        <Text style={styles.description}>{item.descricao || 'Sem descrição disponível para este álbum.'}</Text>
         
         <View style={styles.separator} />
 
         <View style={styles.priceRowContainer}>
           <Text style={styles.price}>
-            R${(item.preco || item.price).toFixed(2).replace('.', ',')}
+            R$ {(item.preco || 0).toFixed(2).replace('.', ',')}
           </Text>
           
-          <View style={styles.quantityContainer}>
-            <TouchableOpacity onPress={subtractQuantity} style={styles.quantityBtn}>
-              <Ionicons name="remove" size={20} color={theme.text} />
-            </TouchableOpacity>
-
-            <Text style={styles.quantityText}>{quantity}</Text>
-
-            <TouchableOpacity onPress={sumQuantity} style={styles.quantityBtn}>
-              <Ionicons name="add" size={20} color={theme.text} />
-            </TouchableOpacity>
-          </View>
+          {!isAdmin && (
+            <View style={styles.quantityContainer}>
+              <TouchableOpacity onPress={subtractQuantity} style={styles.quantityBtn}>
+                <Ionicons name="remove" size={20} color={theme.text} />
+              </TouchableOpacity>
+              <Text style={styles.quantityText}>{quantity}</Text>
+              <TouchableOpacity onPress={sumQuantity} style={styles.quantityBtn}>
+                <Ionicons name="add" size={20} color={theme.text} />
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
-
-        <View style={styles.separator} />
       </ScrollView>
 
-      <View style={styles.footerButtonsContainer}>
-        <TouchableOpacity 
-          style={styles.favButton} 
-          onPress={() => console.log("Adicionar aos favoritos")}
-        >
-          <Ionicons name="heart-outline" size={22} color={theme.text} />
-        </TouchableOpacity>
+      {!isAdmin && (
+        <View style={styles.footerButtonsContainer}>
+          <TouchableOpacity 
+            style={styles.favButton} 
+            onPress={toggleFavorite}
+            disabled={loadingFav}
+          >
+            {loadingFav ? (
+              <ActivityIndicator size="small" color={theme.text} />
+            ) : (
+              <Ionicons 
+                name={isFavorite ? "heart" : "heart-outline"} 
+                size={24} 
+                color={isFavorite ? theme.primary : theme.text} 
+              />
+            )}
+          </TouchableOpacity>
 
+          <TouchableOpacity 
+            style={styles.buttonAddCart} 
+            onPress={() => addToCart(item, quantity)}
+          >
+            <Ionicons name="bag-handle-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+            <Text style={styles.buttonAddCartText}>Adicionar ao Carrinho</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {isAdmin && (
         <TouchableOpacity 
-          style={styles.buttonAddCart} 
-          onPress={() => addToCart(item, quantity)}
+          style={styles.adminFloatingButton} 
+          onPress={() => navigation.navigate('EditProduct', { produtoParaEditar: item })}
         >
-          <Ionicons name="bag-handle-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
-          <Text style={styles.buttonAddCartText}>Adicionar ao Carrinho</Text>
+          <Ionicons name="pencil" size={28} color="#FFFFFF" />
         </TouchableOpacity>
-      </View>
+      )}
     </View>
   );
 }
 
 const createStyles = (theme) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.background,
+  container: { 
+    flex: 1, 
+    backgroundColor: theme.background 
   },
-  closeButtonContainer: {
-    alignSelf: 'flex-end',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+  closeButtonContainer: { 
+    alignSelf: 'flex-end', 
+    paddingHorizontal: 20, 
+    paddingVertical: 10 
   },
-  scrollContent: {
-    paddingHorizontal: 24,
-    paddingBottom: 20,
+  scrollContent: { 
+    paddingHorizontal: 24, 
+    paddingBottom: 40 
   },
-  imagem: {
-    height: 320,
-    width: '100%',
-    borderRadius: 12,
-    backgroundColor: theme.surface,
+  imageWrapper: { 
+    borderRadius: 12, 
+    borderWidth: 1, 
+    borderColor: '#3498db', 
+    overflow: 'hidden', 
+    backgroundColor: '#000', 
+    marginBottom: 24 
   },
-  categoryItem: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: theme.primary,
-    marginTop: 24,
-    letterSpacing: 1,
+  imagem: { 
+    height: 320, 
+    width: '100%', 
+    resizeMode: 'cover', 
+    opacity: 0.9 
   },
-  title: {
-    fontSize: 26,
+  categoryItem: { 
+    fontSize: 12, 
     fontWeight: 'bold', 
-    color: theme.text,
-    marginTop: 6,
+    color: theme.primary, 
+    letterSpacing: 1.5 
   },
-  artist: {
-    fontSize: 13,
-    color: theme.textSecondary,
-    fontWeight: '600',
-    marginTop: 2,
-    letterSpacing: 0.5,
+  title: { 
+    fontSize: 28, 
+    fontWeight: 'bold', 
+    color: theme.text, 
+    marginTop: 6, 
+    marginBottom: 2 
   },
-  description: {
-    fontSize: 14,
-    color: theme.textSecondary,
-    lineHeight: 22,
-    marginTop: 18,
+  artist: { 
+    fontSize: 12, 
+    color: theme.textSecondary, 
+    fontWeight: 'bold', 
+    letterSpacing: 1 
   },
-  separator: {
-    height: 1,
-    backgroundColor: theme.border,
-    marginVertical: 20,
-    opacity: 0.5,
+  description: { 
+    fontSize: 15, 
+    color: theme.textSecondary, 
+    lineHeight: 24, 
+    marginTop: 20 
   },
-  priceRowContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  separator: { 
+    height: 1, 
+    backgroundColor: theme.border, 
+    marginVertical: 24, 
+    opacity: 0.3 
   },
-  price: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: theme.primary,
+  priceRowContainer: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center' 
   },
-  quantityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.type === 'dark' ? '#1A1613' : '#F5E6DF',
-    borderRadius: 20,
-    padding: 4,
+  price: { 
+    fontSize: 28, 
+    fontWeight: 'bold', 
+    color: theme.primary 
   },
-  quantityBtn: {
-    width: 32,
-    height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
+  quantityContainer: { 
+    flexDirection: 'row', 
+    alignItems: 'center' 
   },
-  quantityText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: theme.text,
-    paddingHorizontal: 12,
+  quantityBtn: { 
+    width: 40, 
+    height: 40, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
   },
-  footerButtonsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingTop: 12,
-    paddingBottom: 8,
-    alignItems: 'center',
+  quantityText: { 
+    fontSize: 18, 
+    fontWeight: 'bold', 
+    color: theme.text, 
+    paddingHorizontal: 8 
   },
-  favButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: theme.type === 'dark' ? '#1A1613' : '#FFFFFF',
-    borderWidth: theme.type === 'light' ? 1 : 0,
-    borderColor: theme.border,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
+  footerButtonsContainer: { 
+    flexDirection: 'row', 
+    paddingHorizontal: 24, 
+    paddingTop: 16, 
+    paddingBottom: 24, 
+    borderTopWidth: 1, 
+    borderTopColor: theme.surface, 
+    backgroundColor: theme.background 
   },
-  buttonAddCart: {
-    flex: 1,
-    height: 50,
-    backgroundColor: theme.primary,
-    borderRadius: 10,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+  favButton: { 
+    width: 56, 
+    height: 56, 
+    borderRadius: 12, 
+    backgroundColor: theme.surface, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    marginRight: 16 
   },
-  buttonAddCartText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: 'bold',
+  buttonAddCart: { 
+    flex: 1, 
+    height: 56, 
+    backgroundColor: theme.primary, 
+    borderRadius: 12, 
+    flexDirection: 'row', 
+    justifyContent: 'center', 
+    alignItems: 'center' 
   },
+  buttonAddCartText: { 
+    color: '#FFFFFF', 
+    fontSize: 16, 
+    fontWeight: 'bold' 
+  },
+  adminFloatingButton: { 
+    position: 'absolute', 
+    bottom: 40, 
+    right: 24, 
+    backgroundColor: '#3498db', 
+    width: 60, 
+    height: 60, 
+    borderRadius: 30, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    shadowColor: '#000', 
+    shadowOffset: { width: 0, height: 4 }, 
+    shadowOpacity: 0.3, 
+    shadowRadius: 5, 
+    elevation: 6 
+  }
 });

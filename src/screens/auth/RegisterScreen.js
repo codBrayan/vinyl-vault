@@ -12,7 +12,8 @@ import {
   Platform,
   ScrollView,
   TouchableWithoutFeedback,
-  Keyboard    
+  Keyboard,
+  Image,
 } from 'react-native';
 import { useState, useContext } from 'react';
 
@@ -48,13 +49,15 @@ export default function RegisterScreen({ navigation }) {
                     contentContainerStyle={styles.scrollContainer}
                     showsVerticalScrollIndicator={false}
                 >
-                    <View style={styles.headerContainer}>
-                        <View style={styles.vinilPlaceholder}>
-                            <Text style={{ fontSize: 40 }}>💿</Text>
-                        </View>
-                        <Text style={styles.logoText}>Vinyl Vault</Text>
+                  <View style={styles.headerContainer}>
+                    <View style={styles.vinilPlaceholder}>
+                      <Image 
+                        source={require('../../../assets/vinilLogo.png')}
+                        style={styles.logoIcon}>
+                      </Image>
                     </View>
-
+                    <Text style={styles.logoText}>Vinyl Vault</Text>
+                  </View>
                     <View style={styles.formContainer}>
                         <Text style={styles.label}>Nome</Text>
                         <TextInput
@@ -114,24 +117,23 @@ const createStyles = (theme) => StyleSheet.create({
     marginBottom: 32,
   },
   vinilPlaceholder: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: theme.type === 'dark' ? '#1A1613' : '#FFFFFF',
+    width: 150,
+    height: 150,
+    borderRadius:100,
+    backgroundColor: theme.primary, 
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: theme.type === 'light' ? 0.1 : 0,
-    shadowRadius: 4,
-    elevation: 2,
+    marginBottom: 10,
+  },
+  logoIcon:{
+    height: '150%',
+    width: '150%',
   },
   logoText: {
-    fontSize: 28,
+    fontSize: 34,
     fontWeight: 'bold',
-    color: theme.text,
-    letterSpacing: 0.5,
+    color: theme.primary, 
+    letterSpacing: 1,
   },
   formContainer: {
     width: '100%',

@@ -1,8 +1,16 @@
 [
   {
+    "role": "admin",
     "id": "100",
     "email": "dev@vinyl.com",
     "senha": "123",
     "nome": "admin"
+  },
+  {
+    "role": "user",
+    "id": "101",
+    "email": "user@vinyl.com",
+    "senha": "123",
+    "nome": "Usuário"
   }
 ]

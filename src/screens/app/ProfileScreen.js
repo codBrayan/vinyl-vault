@@ -10,9 +10,10 @@ import {
 import { AuthContext } from '../../context/AuthContext.js';
 import { ThemeContext } from '../../context/ThemeContext.js';
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ navigation }) {
   const { usuario, logout } = useContext(AuthContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
+  const isAdmin = usuario?.role === 'admin';
 
   const handleLogout = () => {
     Alert.alert(
@@ -33,7 +34,6 @@ export default function ProfileScreen() {
         <Text style={styles.headerTitle}>Minha Conta</Text>
       </View>
 
-      {/* Card com os dados do usuário logado */}
       <View style={styles.profileCard}>
         <View style={styles.avatarPlaceholder}>
           <Text style={styles.avatarText}>
@@ -42,10 +42,32 @@ export default function ProfileScreen() {
         </View>
         <Text style={styles.userName}>{usuario?.nome || 'Usuário Collector'}</Text>
         <Text style={styles.userEmail}>{usuario?.email || 'dev@vinyl.com'}</Text>
+        {isAdmin && (
+          <View style={styles.adminBadge}>
+            <Text style={styles.adminBadgeText}>ADMINISTRADOR</Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.menuContainer}>
-        {/* Bônus: Botão para alternar o tema do app */}
+        {isAdmin ? (
+          <>
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('DeletedProducts')}>
+              <Text style={styles.menuItemText}>Produtos deletados</Text>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Favorites')}>
+              <Text style={styles.menuItemText}>Meus Favoritos</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('UserOrders')}>
+              <Text style={styles.menuItemText}>Meus Pedidos</Text>
+            </TouchableOpacity>
+          </>
+        )}
+
         <TouchableOpacity style={styles.menuItem} onPress={toggleTheme}>
           <Text style={styles.menuItemText}>Alternar Tema (Light/Dark)</Text>
           <Text style={styles.menuItemBadge}>{theme.type === 'dark' ? 'Escuro' : 'Claro'}</Text>
@@ -53,7 +75,6 @@ export default function ProfileScreen() {
 
         <View style={styles.divider} />
 
-        {/* Botão de Logout */}
         <TouchableOpacity style={[styles.menuItem, styles.logoutItem]} onPress={handleLogout}>
           <Text style={styles.logoutText}>Sair do Vinyl Vault</Text>
         </TouchableOpacity>
@@ -109,6 +130,19 @@ const createStyles = (theme) => StyleSheet.create({
     color: theme.textSecondary,
     fontSize: 14,
     marginTop: 4,
+  },
+  adminBadge: {
+    backgroundColor: '#3498db',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 6,
+    marginTop: 10
+  },
+  adminBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: 'bold',
+    letterSpacing: 0.5
   },
   menuContainer: {
     backgroundColor: theme.surface,

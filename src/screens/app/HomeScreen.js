@@ -1,13 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { 
-  StyleSheet, 
-  Text, 
-  FlatList, 
-  Image, 
-  TouchableOpacity, 
-  ActivityIndicator,
-  View 
+  StyleSheet, Text, FlatList, Image, TouchableOpacity, 
+  ActivityIndicator, View, Alert, TextInput, ScrollView, RefreshControl
 } from 'react-native';
 import { productService } from '../../services/productService.js'; 
 import { ThemeContext } from '../../context/ThemeContext.js';
@@ -15,254 +10,418 @@ import { CartContext } from '../../context/CartContext.js';
 import { AuthContext } from '../../context/AuthContext.js';
 import { Ionicons } from '@expo/vector-icons';
 
-
-
-export default function HomeScreen({navigation}) {
+export default function HomeScreen({ navigation }) {
   const { usuario } = useContext(AuthContext);
-  const nameUser = usuario ? usuario.nome : 'Usuário';
+  const isAdmin = usuario?.role === 'admin';
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [refreshing, setRefreshing] = useState(false);
 
-  const categories = ['All', 'Vinil', 'K7', 'CD'];
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('Todos');
+  const categorias = ['Todos', 'Vinil', 'K7', 'CD'];
 
   const { theme } = useContext(ThemeContext);
   const { addToCart } = useContext(CartContext);
-  const insets = useSafeAreaInsets();
+
+  const loadProducts = async () => {
+    try {
+      const data = await productService.getAll();
+      setProducts(data);
+    } catch (error) {
+      console.error("Erro ao carregar produtos:", error);
+    }
+  };
 
   useEffect(() => {
-    async function loadProducts() {
-      try {
-        const data = await productService.getAll();
-        setProducts(data);
-      } catch (error) {
-        console.error("Error loading vinyls:", error);
-      } finally {
-        setLoading(false);
-      }
+    const unsubscribe = navigation.addListener('focus', () => {
+      setLoading(true);
+      loadProducts().finally(() => setLoading(false));
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadProducts();
+    setRefreshing(false);
+  };
+
+  const handleProductButton = (item) => {
+    if (isAdmin) {
+      navigation.navigate('EditProduct', { produtoParaEditar: item });
+    } else {
+      addToCart(item);
+      Alert.alert('Sucesso', 'Produto adicionado ao carrinho!');
     }
-    loadProducts();
-  }, []);
+  };
+
+  const filteredProducts = products.filter(item => {
+    const nomeAjustado = item.titulo || item.nome || '';
+    const matchesSearch = nomeAjustado.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (item.artista || '').toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesCategory = selectedCategory === 'Todos' || item.categoria === selectedCategory;
+    
+    return matchesSearch && matchesCategory;
+  });
 
   const styles = createStyles(theme);
 
-  if (loading) {
-    return (
-      <View style={[styles.loadingContainer, { paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color={theme.primary} />
-      </View>
-    );
-  }
-
-
-  const filteredProducts = selectedCategory === 'All' 
-    ? products 
-    : products.filter(item => (item.categoria) === selectedCategory);
-
-  const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.card} 
-      onPress={() => navigation.navigate('ProductScreen', { item })} 
-      activeOpacity={0.8}
-
+  const renderProductCard = ({ item }) => (
+    <TouchableOpacity 
+      style={styles.card}
+      onPress={() => navigation.navigate('ProductScreen', { item })}
     >
-      <Image source={{ uri: item.imagem}} style={styles.cover} />
+      <View style={styles.imageWrapper}>
+        <Image source={{ uri: item.imagem || 'https://via.placeholder.com/320' }} style={styles.cover} />
+      </View>
       <View style={styles.infoContainer}>
-        <Text style={styles.artist} numberOfLines={1}>{item.artista}</Text>
-        <Text style={styles.title} numberOfLines={1}>{item.titulo}</Text>
+        <Text style={styles.artist}>{item.artista || 'Artista Desconhecido'}</Text>
+        <Text style={styles.title} numberOfLines={1}>{item.titulo || item.nome}</Text>
+        
         <View style={styles.priceContainer}>
-          <Text style={styles.price}>R${(item.preco).toFixed(2).replace('.', ',')}</Text>
-          <TouchableOpacity style={styles.miniButton} onPress={() => addToCart(item)}>
-            <Ionicons name="cart-outline"></Ionicons>
+          <Text style={styles.price}>
+            R$ {(item.preco || 0).toFixed(2).replace('.', ',')}
+          </Text>
+          
+          <TouchableOpacity 
+            style={[styles.actionButton, isAdmin && styles.adminActionButton]} 
+            onPress={() => handleProductButton(item)}
+          >
+            <Ionicons 
+              name={isAdmin ? "pencil" : "add"} 
+              size={16} 
+              color={isAdmin ? "#FFFFFF" : theme.text} 
+            />
           </TouchableOpacity>
         </View>
       </View>
     </TouchableOpacity>
   );
 
+  const userHeaderContent = (
+    <View style={styles.scrollableHeader}>
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar artistas, álbuns..."
+          placeholderTextColor={theme.textSecondary}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        <Ionicons name="search" size={20} color={theme.textSecondary} style={styles.searchIcon} />
+      </View>
+
+      <View style={styles.heroSection}>
+        <Text style={styles.heroTitle}>
+          <Text style={{ color: theme.primary }}>Descubra</Text> sons{"\n"}em formato físico
+        </Text>
+        <Text style={styles.heroSubtitle}>
+          Vinis, fitas K7 e CDs para colecionadores
+        </Text>
+      </View>
+
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Todos os Produtos</Text>
+        <Text style={styles.itemCount}>{filteredProducts.length} itens</Text>
+      </View>
+    </View>
+  );
+  const adminHeaderContent = (
+    <View style={styles.scrollableHeader}>
+      <View style={[styles.searchContainer, { borderColor: '#3498db' }]}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar no acervo..."
+          placeholderTextColor={theme.textSecondary}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        <Ionicons name="search" size={20} color={theme.textSecondary} style={styles.searchIcon} />
+      </View>
+
+      <View style={styles.heroSection}>
+        <Text style={styles.heroTitle}>
+          Visão <Text style={{ color: '#3498db' }}>Geral</Text>
+        </Text>
+        <Text style={styles.heroSubtitle}>
+          Gerencie o catálogo de produtos e o inventário da loja
+        </Text>
+      </View>
+
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Acervo Atual</Text>
+        <Text style={styles.itemCount}>{filteredProducts.length} itens cadastrados</Text>
+      </View>
+    </View>
+  );
+
+  if (loading && products.length === 0) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center' }]}>
+        <ActivityIndicator size="large" color={theme.primary} />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.brandTitle}>🔸 Vinyl Vault</Text>
-        <Text style={styles.headerName}>Olá, {nameUser}!</Text>
-        <Text style={styles.headerSubtitle}>Descubra sons em formato físico</Text>
-        <Text style={styles.headerTagline}>Vinis, fitas K7 e CDs para colecionadores</Text>
-      </View>
+      
+      <View style={styles.fixedHeaderContainer}>
+        <View style={styles.topBar}>
+          <View style={styles.logoContainer}>
+            <Ionicons name="disc" size={24} color={isAdmin ? '#3498db' : theme.primary} />
+            <Text style={[styles.logoText, isAdmin && { color: '#3498db' }]}>
+              {isAdmin ? 'Vinyl Vault | Admin' : 'Vinyl Vault'}
+            </Text>
+          </View>
+        </View>
 
-      <View style={styles.categoriesContainer}>
-        {categories.map((category) => {
-          const isActive = selectedCategory === category;
-          return (
-            <TouchableOpacity 
-              key={category}
-              onPress={() => setSelectedCategory(category)}
-              style={[styles.pill, isActive && styles.pillActive]}
-              activeOpacity={0.7}
-            >
-              <Text style={isActive ? styles.pillTextActive : styles.pillText}>
-                {category === 'All' ? 'Todos' : category}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-
-      <View style={styles.sectionTitleContainer}>
-        <Text style={styles.sectionTitle}>
-          {selectedCategory === 'All' ? 'Todos os Produtos' : `Categoria: ${selectedCategory}`}
-        </Text>
-        <Text style={styles.sectionCount}>{filteredProducts.length} itens</Text>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          contentContainerStyle={styles.categoryScroll}
+        >
+          {categorias.map((cat) => {
+            const isSelected = selectedCategory === cat;
+            return (
+              <TouchableOpacity 
+                key={cat} 
+                style={[
+                  styles.categoryBadge, 
+                  isSelected && (isAdmin ? styles.adminCategoryBadgeSelected : styles.categoryBadgeSelected)
+                ]}
+                onPress={() => setSelectedCategory(cat)}
+              >
+                <Text style={[styles.categoryText, isSelected && styles.categoryTextSelected]}>
+                  {cat}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
       </View>
 
       <FlatList
         data={filteredProducts}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
+        renderItem={renderProductCard}
         numColumns={2}
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.listContainer}
+        ListHeaderComponent={isAdmin ? adminHeaderContent : userHeaderContent} 
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh} 
+            tintColor={isAdmin ? '#3498db' : theme.primary} 
+            colors={[isAdmin ? '#3498db' : theme.primary]} 
+          />
+        }
       />
+
+      {isAdmin && (
+        <TouchableOpacity 
+          style={styles.floatingButton}
+          onPress={() => navigation.navigate('CreateProduct')}
+        >
+          <Ionicons name="add" size={32} color="#FFFFFF" />
+        </TouchableOpacity>
+      )}
     </SafeAreaView>
   );
 }
 
 const createStyles = (theme) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.background,
+  container: { 
+    flex: 1, 
+    backgroundColor: theme.background 
   },
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: theme.background,
-    justifyContent: 'center',
-    alignItems: 'center',
+  listContainer: { 
+    paddingBottom: 100 
   },
-  header: {
-    paddingHorizontal: 20,
-    marginTop: 10,
+  fixedHeaderContainer: { 
+    paddingHorizontal: 20, 
+    paddingTop: 10, 
+    backgroundColor: theme.background 
   },
-  brandTitle: {
-    color: theme.primary,
-    fontSize: 16,
-    fontWeight: 'bold',
+  scrollableHeader: { 
+    paddingHorizontal: 20, 
+    paddingTop: 16 
   },
-  headerName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: theme.text,
-    marginTop: 4,
+  topBar: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginBottom: 16 
   },
-  headerSubtitle: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: theme.text,
+  logoContainer: { 
+    flexDirection: 'row', 
+    alignItems: 'center' 
   },
-  headerTagline: {
-    fontSize: 13,
-    color: theme.textSecondary,
-    marginTop: 6,
+  logoText: { 
+    color: theme.primary, 
+    fontSize: 18, 
+    fontWeight: 'bold', 
+    marginLeft: 8 
   },
-  categoriesContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    marginTop: 16,
-    marginBottom: 24,
-  },
-  pill: {
-    backgroundColor: theme.type === 'dark' ? '#231D19' : '#EBE0DA',
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginRight: 8,
-  },
-  pillActive: {
-    backgroundColor: theme.primary,
-  },
-  pillTextActive: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 13,
-  },
-  pillText: {
-    color: theme.textSecondary,
-    fontSize: 13,
-  },
-  sectionTitleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    color: theme.text,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  sectionCount: {
-    color: theme.textSecondary,
-    fontSize: 13,
-  },
-  listContainer: {
-    paddingHorizontal: 12,
-  },
-  row: {
-    justifyContent: 'space-between',
-    paddingHorizontal: 8,
-  },
-  card: {
-    width: '48%',
-    marginBottom: 20,
+  searchContainer: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
     backgroundColor: theme.surface, 
-    borderRadius: 8,
-    overflow: 'hidden',
-    borderWidth: theme.type === 'light' ? 1 : 0,
-    borderColor: theme.border,
+    borderRadius: 24, 
+    paddingHorizontal: 16, 
+    height: 48, 
+    marginBottom: 24, 
+    borderWidth: 1, 
+    borderColor: theme.border 
   },
-  cover: {
-    width: '100%',
-    height: 150,
-    resizeMode: 'cover',
+  searchInput: { 
+    flex: 1, 
+    color: theme.text, 
+    fontSize: 15 
   },
-  infoContainer: {
-    padding: 10,
+  searchIcon: { 
+    marginLeft: 8 
   },
-  artist: {
-    color: theme.textSecondary,
-    fontSize: 10,
-    textTransform: 'uppercase',
-    fontWeight: '700',
+  heroSection: { 
+    marginBottom: 24 
   },
-  title: {
-    color: theme.text,
-    fontSize: 13,
-    fontWeight: '600',
-    marginTop: 2,
+  heroTitle: { 
+    color: theme.text, 
+    fontSize: 32, 
+    fontWeight: 'bold', 
+    lineHeight: 40 
   },
-  priceContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 10,
+  heroSubtitle: { 
+    color: theme.textSecondary, 
+    fontSize: 14, 
+    marginTop: 10 
   },
-  price: {
-    color: theme.primary,
-    fontSize: 14,
-    fontWeight: 'bold',
+  categoryScroll: { 
+    paddingBottom: 12, 
+    gap: 12 
   },
-  miniButton: {
-    backgroundColor: theme.type === 'dark' ? '#c6734b' : '#EBE0DA',
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    justifyContent: 'center',
-    alignItems: 'center',
+  categoryBadge: { 
+    paddingHorizontal: 20, 
+    paddingVertical: 10, 
+    borderRadius: 20, 
+    backgroundColor: theme.surface, 
+    borderWidth: 1, 
+    borderColor: theme.border 
   },
-  miniButtonText: {
-    color: theme.type === 'dark' ? '#FFFFFF' : theme.text,
-    fontSize: 12,
-    fontWeight: 'bold',
+  categoryBadgeSelected: { 
+    backgroundColor: theme.primary, 
+    borderColor: theme.primary 
   },
+  adminCategoryBadgeSelected: { 
+    backgroundColor: '#3498db', 
+    borderColor: '#3498db' 
+  },
+  categoryText: { 
+    color: theme.textSecondary, 
+    fontSize: 14, 
+    fontWeight: '600' 
+  },
+  categoryTextSelected: { 
+    color: '#FFFFFF' 
+  },
+  sectionHeader: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'flex-end', 
+    marginBottom: 16, 
+    marginTop: 8 
+  },
+  sectionTitle: { 
+    color: theme.text, 
+    fontSize: 18, 
+    fontWeight: 'bold' 
+  },
+  itemCount: { 
+    color: theme.textSecondary, 
+    fontSize: 12 
+  },
+  row: { 
+    justifyContent: 'space-between', 
+    paddingHorizontal: 20 
+  },
+  card: { 
+    width: '47%', 
+    marginBottom: 20, 
+    backgroundColor: theme.surface, 
+    borderRadius: 12, 
+    overflow: 'hidden', 
+    borderWidth: 1, 
+    borderColor: theme.border 
+  },
+  imageWrapper: { 
+    backgroundColor: '#000' 
+  },
+  cover: { 
+    width: '100%', 
+    height: 160, 
+    resizeMode: 'cover', 
+    opacity: 0.9 
+  },
+  infoContainer: { 
+    padding: 12, 
+    backgroundColor: theme.type === 'dark' ? '#1E1A17' : theme.surface 
+  },
+  artist: { 
+    color: theme.textSecondary, 
+    fontSize: 10, 
+    textTransform: 'uppercase', 
+    fontWeight: 'bold', 
+    letterSpacing: 0.5 
+  },
+  title: { 
+    color: theme.text, 
+    fontSize: 13, 
+    fontWeight: 'bold', 
+    marginTop: 4, 
+    marginBottom: 8 
+  },
+  priceContainer: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center' 
+  },
+  price: { 
+    color: theme.primary, 
+    fontSize: 14, 
+    fontWeight: 'bold' 
+  },
+  actionButton: { 
+    backgroundColor: theme.background, 
+    width: 26, 
+    height: 26, 
+    borderRadius: 13, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    borderWidth: 1, 
+    borderColor: theme.border 
+  },
+  adminActionButton: { 
+    backgroundColor: '#3498db', 
+    borderColor: '#3498db' 
+  },
+  floatingButton: { 
+    position: 'absolute', 
+    right: 20, 
+    bottom: 20, 
+    backgroundColor: '#3498db', 
+    width: 60, 
+    height: 60, 
+    borderRadius: 30, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    shadowColor: '#000', 
+    shadowOffset: { width: 0, height: 4 }, 
+    shadowOpacity: 0.3, 
+    shadowRadius: 4, 
+    elevation: 5 
+  }
 });

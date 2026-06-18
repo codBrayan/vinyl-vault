@@ -11,7 +11,8 @@ import {
   TouchableWithoutFeedback, 
   Keyboard, 
   ScrollView, 
-  Alert 
+  Alert,
+  Image
 } from 'react-native';
 import { AuthContext } from '../../context/AuthContext.js';
 import { ThemeContext } from '../../context/ThemeContext.js';
@@ -47,10 +48,14 @@ export default function LoginScreen({ navigation }) {
         <ScrollView 
           contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
+          bounces={false}
         >
           <View style={styles.headerContainer}>
             <View style={styles.vinilPlaceholder}>
-              <Text style={{ fontSize: 40 }}>💿</Text>
+              <Image 
+                source={require('../../../assets/vinilLogo.png')}
+                style={styles.logoIcon}>
+              </Image>
             </View>
             <Text style={styles.logoText}>Vinyl Vault</Text>
           </View>
@@ -106,26 +111,30 @@ export default function LoginScreen({ navigation }) {
 const createStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-
-    backgroundColor: theme.type === 'dark' ? theme.background : (theme.loginBg || '#F9EFEA'), 
+    backgroundColor: theme.type === 'dark' ? theme.background : '#F9EFEA', 
   },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
     padding: 24,
+    paddingBottom: Platform.OS === 'android' ? 40 : 24,
   },
   headerContainer: {
     alignItems: 'center',
     marginBottom: 40,
   },
   vinilPlaceholder: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 150,
+    height: 150,
+    borderRadius:100,
     backgroundColor: theme.primary, 
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
+  },
+  logoIcon:{
+    height: '150%',
+    width: '150%',
   },
   logoText: {
     fontSize: 34,
@@ -137,19 +146,17 @@ const createStyles = (theme) => StyleSheet.create({
     backgroundColor: 'transparent',
   },
   label: {
-  
-    color: theme.type === 'dark' ? theme.text : (theme.loginText || '#4A3B32'),
+    color: theme.type === 'dark' ? theme.text : '#4A3B32',
     fontSize: 14,
     fontWeight: '500',
     marginBottom: 8,
     marginTop: 16,
   },
   input: {
-
-    backgroundColor: theme.type === 'dark' ? '#1A1613' : (theme.loginInput || 'transparent'), 
-    color: theme.type === 'dark' ? theme.text : (theme.loginText || '#4A3B32'),
+    backgroundColor: theme.type === 'dark' ? '#1A1613' : '#FFFFFF', 
+    color: theme.type === 'dark' ? theme.text : '#4A3B32',
     padding: 14,
-    borderRadius: 4, 
+    borderRadius: 8, 
     borderWidth: 1,
     borderColor: theme.type === 'dark' ? theme.border : '#C5B5AD', 
     fontSize: 16,

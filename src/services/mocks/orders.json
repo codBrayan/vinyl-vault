@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1041",
+    "data": "15/06/2026",
+    "userId": "101",
+    "cliente": "Usuário",
+    "emailCliente": "user@vinyl.com",
+    "total": 379.80,
+    "itens": "2x Daft Punk - Random Access Memories",
+    "status": "Entregue"
+  },
+  {
+    "id": "1042",
+    "data": "17/06/2026",
+    "userId": "101",
+    "cliente": "Usuário",
+    "emailCliente": "user@vinyl.com",
+    "total": 189.90,
+    "itens": "1x Pink Floyd - The Dark Side of the moon",
+    "status": "Pendente"
+  },
+  {
+    "id": "1043",
+    "data": "18/06/2026",
+    "userId": "102",
+    "cliente": "Maria Clara",
+    "emailCliente": "maria@email.com",
+    "total": 150.00,
+    "itens": "1x Abbey Road",
+    "status": "Cancelado"
+  }
+]
