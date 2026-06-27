@@ -13,7 +13,7 @@ const createClient = (porta, requiresAuth = false) => {
   client.interceptors.response.use(
     (response) => response.data,
     (error) => {
-      console.log("[Global Error]: ", error);
+      console.error("[Global Error]: ", error);
       const mensagem =
         error.response?.data?.message ||
         error.response?.data?.erro ||

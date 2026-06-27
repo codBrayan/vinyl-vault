@@ -18,6 +18,7 @@ import { ThemeContext } from "../../context/ThemeContext.js";
 import { CartContext } from "../../context/CartContext.js";
 import { AuthContext } from "../../context/AuthContext.js";
 import { Ionicons } from "@expo/vector-icons";
+import { CATEGORIES_LABELS } from "../../consts/CategoriesLabels.js";
 
 export default function HomeScreen({ navigation }) {
   const { usuario } = useContext(AuthContext);
@@ -28,12 +29,12 @@ export default function HomeScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("Todos");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const categorias = [
     { label: "Todos", value: "all" },
-    { label: "Vinil", value: "vinyl" },
-    { label: "K7", value: "cassete" },
-    { label: "CD", value: "cd" },
+    { label: CATEGORIES_LABELS["vinyl"], value: "vinyl" },
+    { label: CATEGORIES_LABELS["cassete"], value: "cassete" },
+    { label: CATEGORIES_LABELS["cd"], value: "cd" },
   ];
 
   const { theme } = useContext(ThemeContext);
@@ -72,8 +73,6 @@ export default function HomeScreen({ navigation }) {
   };
 
   const filteredProducts = products.filter((item) => {
-    console.log("item", item.category, selectedCategory);
-
     const matchesSearch =
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.artist.toLowerCase().includes(searchQuery.toLowerCase());

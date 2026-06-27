@@ -1,40 +1,41 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-let favoritesDB = [];
+const FAVORITES_KEY = (userId) => `@VinylVault_favorites_${userId}`;
+
+const loadFavorites = async (userId) => {
+  const json = await AsyncStorage.getItem(FAVORITES_KEY(userId));
+  return json ? JSON.parse(json) : [];
+};
+
+const saveFavorites = async (userId, favorites) => {
+  await AsyncStorage.setItem(FAVORITES_KEY(userId), JSON.stringify(favorites));
+};
 
 export const favoritesService = {
-  // Simula: GET /api/users/{userId}/favorites
   getFavorites: async (userId) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const userFavorites = favoritesDB
-          .filter(fav => fav.userId === userId)
-          .map(fav => fav.product);
-        resolve(userFavorites);
-      }, 300);
-    });
+    return loadFavorites(userId);
   },
+
   checkIsFavorite: async (userId, productId) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const exists = favoritesDB.some(fav => fav.userId === userId && fav.product.id === productId);
-        resolve(exists);
-      }, 100);
-    });
+    const favorites = await loadFavorites(userId);
+    return favorites.some((p) => p.id === productId);
   },
+
   addFavorite: async (userId, product) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        favoritesDB.push({ userId, product });
-        resolve(true);
-      }, 300);
-    });
+    const favorites = await loadFavorites(userId);
+    const jaExiste = favorites.some((p) => p.id === product.id);
+    if (!jaExiste) {
+      await saveFavorites(userId, [...favorites, product]);
+    }
+    return true;
   },
+
   removeFavorite: async (userId, productId) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        favoritesDB = favoritesDB.filter(fav => !(fav.userId === userId && fav.product.id === productId));
-        resolve(true);
-      }, 300);
-    });
-  }
+    const favorites = await loadFavorites(userId);
+    await saveFavorites(
+      userId,
+      favorites.filter((p) => p.id !== productId),
+    );
+    return true;
+  },
 };

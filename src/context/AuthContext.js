@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
       ]);
       if (credJson[1]) setUsuario(JSON.parse(credJson[1]));
     } catch (error) {
-      console.log("Erro ao carregar usuário:", error.message);
+      console.error("Erro ao carregar usuário:", error.message);
     } finally {
       setLoading(false);
     }
@@ -35,7 +35,6 @@ export const AuthProvider = ({ children }) => {
     setErro(null);
     try {
       const { user, token } = await authService.login(email, senha);
-      console.log("USER", { user, token });
 
       const dadosUsuario = {
         id: user.id,
