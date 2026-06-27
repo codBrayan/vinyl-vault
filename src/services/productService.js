@@ -1,12 +1,13 @@
-import productsMock from './mocks/products.json'; // Ajuste o import conforme a sintaxe que estiver usando
+import { productsApi } from "./api";
+import productsMock from "./mocks/products.json"; // Ajuste o import conforme a sintaxe que estiver usando
 
 let produtosMemoria = [...productsMock];
 let produtosDeletadosMemoria = [];
 
 export const productService = {
-  getAll: async () => {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(produtosMemoria), 400);
+  getAll: async (page = 0, size = 25, currency = "BRL") => {
+    return productsApi.get("/products", {
+      params: { targetCurrency: currency, page, size },
     });
   },
 
@@ -18,9 +19,9 @@ export const productService = {
           titulo: novoProduto.titulo,
           artista: novoProduto.artista,
           preco: parseFloat(novoProduto.preco),
-          imagem: novoProduto.imagem || 'https://via.placeholder.com/320',
+          imagem: novoProduto.imagem || "https://via.placeholder.com/320",
           categoria: novoProduto.categoria || "Sem Categoria",
-          descricao: novoProduto.descricao || "Sem descrição disponível."
+          descricao: novoProduto.descricao || "Sem descrição disponível.",
         };
         produtosMemoria.unshift(produtoFormatado);
         resolve(produtoFormatado);
@@ -31,18 +32,18 @@ export const productService = {
   update: async (id, dadosAtualizados) => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        produtosMemoria = produtosMemoria.map(p => 
-          p.id === id 
-            ? { 
-                ...p, 
-                titulo: dadosAtualizados.titulo, 
-                artista: dadosAtualizados.artista, 
-                preco: parseFloat(dadosAtualizados.preco), 
+        produtosMemoria = produtosMemoria.map((p) =>
+          p.id === id
+            ? {
+                ...p,
+                titulo: dadosAtualizados.titulo,
+                artista: dadosAtualizados.artista,
+                preco: parseFloat(dadosAtualizados.preco),
                 imagem: dadosAtualizados.imagem,
                 categoria: dadosAtualizados.categoria || p.categoria,
-                descricao: dadosAtualizados.descricao || p.descricao
+                descricao: dadosAtualizados.descricao || p.descricao,
               }
-            : p
+            : p,
         );
         resolve(true);
       }, 400);
@@ -52,12 +53,12 @@ export const productService = {
   delete: async (id) => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const produtoParaDeletar = produtosMemoria.find(p => p.id === id);
+        const produtoParaDeletar = produtosMemoria.find((p) => p.id === id);
         if (produtoParaDeletar) {
           produtosDeletadosMemoria.push(produtoParaDeletar);
         }
 
-        produtosMemoria = produtosMemoria.filter(p => p.id !== id);
+        produtosMemoria = produtosMemoria.filter((p) => p.id !== id);
         resolve(true);
       }, 400);
     });
@@ -71,13 +72,17 @@ export const productService = {
   restore: async (id) => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const produtoParaRestaurar = produtosDeletadosMemoria.find(p => p.id === id);
+        const produtoParaRestaurar = produtosDeletadosMemoria.find(
+          (p) => p.id === id,
+        );
         if (produtoParaRestaurar) {
           produtosMemoria.unshift(produtoParaRestaurar);
         }
-        produtosDeletadosMemoria = produtosDeletadosMemoria.filter(p => p.id !== id);
+        produtosDeletadosMemoria = produtosDeletadosMemoria.filter(
+          (p) => p.id !== id,
+        );
         resolve(true);
       }, 400);
     });
-  }
+  },
 };
