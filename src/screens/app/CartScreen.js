@@ -31,18 +31,12 @@ export default function CartScreen({ navigation }) {
 
     setIsProcessing(true);
     try {
-      await orderService.createOrder(
-        usuario.id,
-        usuario.nome,
-        usuario.email,
-        cart,
-        cartTotal,
-      );
+      await orderService.createOrder(cart);
 
       clearCart();
       Alert.alert(
         "Sucesso!",
-        `Seu pedido foi processado. Acompanhe o status na aba de Pedidos.`,
+        "Seu pedido foi confirmado. Acompanhe o status na aba de Pedidos.",
         [
           {
             text: "Ver Pedidos",
@@ -51,15 +45,15 @@ export default function CartScreen({ navigation }) {
         ],
       );
     } catch (error) {
+      console.error("[Cart Finalize Error]: ", error);
       Alert.alert(
         "Falha na Compra",
-        "Não foi possível registrar seu pedido. Tente novamente.",
+        error.message || "Não foi possível registrar seu pedido.",
       );
     } finally {
       setIsProcessing(false);
     }
   };
-
   const styles = createStyles(theme);
 
   const renderItem = ({ item }) => (

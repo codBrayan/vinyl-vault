@@ -37,4 +37,4 @@ const createClient = (porta, requiresAuth = false) => {
 
 export const authApi = createClient(8900);
 export const productsApi = createClient(8765, true);
-export const cartApi = createClient(8082, true);
+export const ordersApi = createClient(8765, true);
