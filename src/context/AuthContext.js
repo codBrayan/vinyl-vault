@@ -1,12 +1,15 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { authService } from '../services/authService.js';
+import { authService } from "../services/authService.js";
 
 export const AuthContext = createContext();
 
+const STORAGE_KEY = "@VinylVault_userCredentials";
+const TOKEN_KEY = "@VinylVault_token";
+
 export const AuthProvider = ({ children }) => {
   const [usuario, setUsuario] = useState(null);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
 
   useEffect(() => {
@@ -15,13 +18,13 @@ export const AuthProvider = ({ children }) => {
 
   async function loadUser() {
     try {
-      const response = await AsyncStorage.getItem("@IntegrationCrud_userCredentials");
-      if (response) {
-        const dadosUsuario = JSON.parse(response);
-        setUsuario(dadosUsuario);
-      }
+      const [credJson, token] = await AsyncStorage.multiGet([
+        STORAGE_KEY,
+        TOKEN_KEY,
+      ]);
+      if (credJson[1]) setUsuario(JSON.parse(credJson[1]));
     } catch (error) {
-      console.log("Erro ao carregar usuário automaticamente:", error.message);
+      console.log("Erro ao carregar usuário:", error.message);
     } finally {
       setLoading(false);
     }
@@ -31,17 +34,40 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     setErro(null);
     try {
-      const dadosUsuario = await authService.login(email, senha);
-      
-      setUsuario(dadosUsuario);
-      
-      await AsyncStorage.setItem(
-        "@IntegrationCrud_userCredentials",
-        JSON.stringify(dadosUsuario),
-      );
-      return true;
+      const { user, token } = await authService.login(email, senha);
+      console.log("USER", { user, token });
 
+      const dadosUsuario = {
+        id: user.id,
+        nome: user.name,
+        email: user.email,
+        role: user.type,
+      };
+
+      await AsyncStorage.multiSet([
+        [STORAGE_KEY, JSON.stringify(dadosUsuario)],
+        [TOKEN_KEY, token],
+      ]);
+
+      setUsuario(dadosUsuario);
+      return true;
     } catch (err) {
+      console.error("[Login - Auth Error]: ", err);
+      setErro(err.message);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const register = async (nome, email, senha) => {
+    setLoading(true);
+    setErro(null);
+    try {
+      await authService.register(nome, email, senha);
+      return await login(email, senha);
+    } catch (err) {
+      console.error("[Register - Auth Error]: ", err);
       setErro(err.message);
       return false;
     } finally {
@@ -52,7 +78,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     setLoading(true);
     try {
-      await AsyncStorage.removeItem("@IntegrationCrud_userCredentials");
+      await AsyncStorage.multiRemove([STORAGE_KEY, TOKEN_KEY]);
       setUsuario(null);
     } catch (error) {
       console.error("Erro ao efetuar logout:", error);
@@ -61,29 +87,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (nome, email, senha) => {
-    setLoading(true);
-    setErro(null);
-    try {
-      const dadosUsuario = await authService.register(nome, email, senha);
-      
-      setUsuario(dadosUsuario);
-
-      await AsyncStorage.setItem(
-        "@IntegrationCrud_userCredentials",
-        JSON.stringify(dadosUsuario),
-      );
-      return true;
-    } catch (err) {
-      setErro(err.message);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <AuthContext.Provider value={{ usuario, loading, erro, login, logout, register }}>
+    <AuthContext.Provider
+      value={{ usuario, loading, erro, login, logout, register }}
+    >
       {children}
     </AuthContext.Provider>
   );

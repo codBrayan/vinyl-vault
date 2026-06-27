@@ -3,35 +3,36 @@
     "id": "1",
     "titulo": "The Dark Side of the Moon",
     "artista": "Pink Floyd",
-    "preco": 189.90,
+    "preco": 189.9,
     "categoria": "Vinil",
-    "imagem": "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&q=80&w=500",
+    "imagem": "https://i.scdn.co/image/ab67616d0000b273f6b665715065cbfb3b95ca9d",
     "descricao": "Edição especial em excelente estado. Todas as faixas originais preservadas com qualidade premium. Perfeito para colecionadores e amantes de música física."
   },
   {
     "id": "2",
     "titulo": "The Wall",
     "artista": "Pink Floyd",
-    "preco": 210.00,
+    "preco": 210.0,
     "categoria": "Vinil",
-    "descricao": "Álbum duplo clássico, remasterizado em vinil de alta fidelidade."
+    "descricao": "Álbum duplo clássico, remasterizado em vinil de alta fidelidade.",
+    "imagem": "https://i.scdn.co/image/ab67616d0000b273b694e89ba937dd2631ff584c"
   },
   {
     "id": "3",
     "titulo": "Abbey Road",
     "artista": "The Beatles",
-    "preco": 150.00,
+    "preco": 150.0,
     "categoria": "CD",
-    "imagem": "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&q=80&w=500",
+    "imagem": "https://i.scdn.co/image/ab67616d0000b273dc30583ba717007b00cceb25",
     "descricao": "Versão em CD nacional com encarte original completo."
   },
   {
     "id": "4",
     "titulo": "Master of Puppets",
     "artista": "Metallica",
-    "preco": 95.00,
+    "preco": 95.0,
     "categoria": "K7",
-    "imagem": "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&q=80&w=500",
+    "imagem": "https://m.media-amazon.com/images/I/81j7xM-oijL._UF1000,1000_QL80_.jpg",
     "descricao": "Fita cassete rara para colecionadores, reprodução perfeita."
   }
 ]
