@@ -31,7 +31,7 @@ export default function CreateProductScreen({ navigation }) {
     category: "",
     releaseDate: "",
     imageURL: "",
-    currency: "USD",
+    currency: "BRL",
     description: "",
   });
   const [salvando, setSalvando] = useState(false);

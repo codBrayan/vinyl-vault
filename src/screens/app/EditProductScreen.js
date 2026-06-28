@@ -24,6 +24,7 @@ export default function EditProductScreen({ route, navigation }) {
   const styles = createStyles(theme);
 
   const produtoParaEditar = route.params?.produtoParaEditar || null;
+  console.log("produtoParaEditar", produtoParaEditar);
 
   const [form, setForm] = useState({
     title: "",
@@ -33,7 +34,7 @@ export default function EditProductScreen({ route, navigation }) {
     category: "",
     releaseDate: "",
     imageURL: "",
-    currency: "USD",
+    currency: "BRL",
     description: "",
   });
   const [salvando, setSalvando] = useState(false);
@@ -43,12 +44,12 @@ export default function EditProductScreen({ route, navigation }) {
       setForm({
         title: produtoParaEditar.title || "",
         artist: produtoParaEditar.artist || "",
-        price: produtoParaEditar.price?.toString() || "",
+        price: produtoParaEditar.convertedPrice?.toFixed(2) || "",
         genre: produtoParaEditar.genre || "",
         category: produtoParaEditar.category || "",
         releaseDate: produtoParaEditar.releaseDate || "",
         imageURL: produtoParaEditar.imageURL || "",
-        currency: produtoParaEditar.currency || "USD",
+        currency: produtoParaEditar.currency || "BRL",
         description: produtoParaEditar.description || "",
       });
     }
@@ -82,7 +83,7 @@ export default function EditProductScreen({ route, navigation }) {
   const handleDeletar = () => {
     Alert.alert(
       "Confirmar Exclusão",
-      `Tem certeza que deseja deletar permanentemente o álbum ${form.titulo}?`,
+      `Tem certeza que deseja deletar permanentemente o álbum ${form.title}?`,
       [
         { text: "Cancelar", style: "cancel" },
         {
@@ -135,8 +136,8 @@ export default function EditProductScreen({ route, navigation }) {
             <Text style={styles.fieldLabel}>TÍTULO DO ÁLBUM *</Text>
             <TextInput
               style={styles.input}
-              value={form.titulo}
-              onChangeText={(t) => setForm({ ...form, titulo: t })}
+              value={form.title}
+              onChangeText={(t) => setForm({ ...form, title: t })}
               editable={!salvando}
             />
           </View>
@@ -145,8 +146,8 @@ export default function EditProductScreen({ route, navigation }) {
             <Text style={styles.fieldLabel}>ARTISTA / BANDA *</Text>
             <TextInput
               style={styles.input}
-              value={form.artista}
-              onChangeText={(t) => setForm({ ...form, artista: t })}
+              value={form.artist}
+              onChangeText={(t) => setForm({ ...form, artist: t })}
               editable={!salvando}
             />
           </View>
@@ -171,8 +172,8 @@ export default function EditProductScreen({ route, navigation }) {
             <Text style={styles.fieldLabel}>PREÇO (R$) *</Text>
             <TextInput
               style={styles.input}
-              value={form.preco}
-              onChangeText={(t) => setForm({ ...form, preco: t })}
+              value={form.price}
+              onChangeText={(t) => setForm({ ...form, price: t })}
               keyboardType="numeric"
               editable={!salvando}
             />
