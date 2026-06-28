@@ -16,6 +16,7 @@ import { ThemeContext } from "../../context/ThemeContext.js";
 import { productService } from "../../services/productService.js";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../../context/AuthContext.js";
+import { Picker } from "@react-native-picker/picker";
 
 export default function EditProductScreen({ route, navigation }) {
   const { theme } = useContext(ThemeContext);
@@ -179,12 +180,19 @@ export default function EditProductScreen({ route, navigation }) {
 
           <View style={styles.inputGroup}>
             <Text style={styles.fieldLabel}>CATEGORIA</Text>
-            <TextInput
-              style={styles.input}
-              value={form.categoria}
-              onChangeText={(t) => setForm({ ...form, categoria: t })}
-              editable={!salvando}
-            />
+            <View style={styles.pickerWrapper}>
+              <Picker
+                selectedValue={form.category}
+                onValueChange={(value) => setForm({ ...form, category: value })}
+                style={{ color: theme.text }}
+                dropdownIconColor={theme.textSecondary}
+                enabled={!salvando}
+              >
+                <Picker.Item label="Vinil" value="vinyl" />
+                <Picker.Item label="CD" value="CD" />
+                <Picker.Item label="Cassete" value="cassete" />
+              </Picker>
+            </View>
           </View>
 
           <TouchableOpacity
@@ -256,6 +264,13 @@ const createStyles = (theme) =>
     },
     inputGroup: {
       marginBottom: 20,
+    },
+    pickerWrapper: {
+      backgroundColor: theme.surface,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: theme.border,
+      overflow: "hidden",
     },
     fieldLabel: {
       color: theme.textSecondary,

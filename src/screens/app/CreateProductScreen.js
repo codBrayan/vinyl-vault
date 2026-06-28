@@ -16,6 +16,7 @@ import { ThemeContext } from "../../context/ThemeContext.js";
 import { productService } from "../../services/productService.js";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../../context/AuthContext.js";
+import { Picker } from "@react-native-picker/picker";
 
 export default function CreateProductScreen({ navigation }) {
   const { theme } = useContext(ThemeContext);
@@ -150,14 +151,19 @@ export default function CreateProductScreen({ navigation }) {
 
           <View style={styles.inputGroup}>
             <Text style={styles.fieldLabel}>CATEGORIA</Text>
-            <TextInput
-              style={styles.input}
-              value={form.category}
-              onChangeText={(t) => setForm({ ...form, category: t })}
-              placeholder="Ex: vinyl, CD, cassete"
-              placeholderTextColor={theme.textSecondary}
-              editable={!salvando}
-            />
+            <View style={styles.pickerWrapper}>
+              <Picker
+                selectedValue={form.category}
+                onValueChange={(value) => setForm({ ...form, category: value })}
+                style={{ color: theme.text }}
+                dropdownIconColor={theme.textSecondary}
+                enabled={!salvando}
+              >
+                <Picker.Item label="Vinil" value="vinyl" />
+                <Picker.Item label="CD" value="CD" />
+                <Picker.Item label="Cassete" value="cassete" />
+              </Picker>
+            </View>
           </View>
 
           <View style={styles.inputGroup}>
@@ -270,6 +276,13 @@ const createStyles = (theme) =>
     textArea: {
       height: 100,
       textAlignVertical: "top",
+    },
+    pickerWrapper: {
+      backgroundColor: theme.surface,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: theme.border,
+      overflow: "hidden",
     },
     saveButton: {
       backgroundColor: theme.primary,
