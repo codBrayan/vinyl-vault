@@ -11,22 +11,27 @@ export const productService = {
     });
   },
 
-  create: async (novoProduto) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const produtoFormatado = {
-          id: Date.now().toString(),
-          titulo: novoProduto.titulo,
-          artista: novoProduto.artista,
-          preco: parseFloat(novoProduto.preco),
-          imagem: novoProduto.imagem || "https://via.placeholder.com/320",
-          categoria: novoProduto.categoria || "Sem Categoria",
-          descricao: novoProduto.descricao || "Sem descrição disponível.",
-        };
-        produtosMemoria.unshift(produtoFormatado);
-        resolve(produtoFormatado);
-      }, 400);
-    });
+  create: async (novoProduto, headers) => {
+    return productsApi.post(
+      "/ws/products",
+      {
+        title: novoProduto.title,
+        artist: novoProduto.artist,
+        releaseDate: novoProduto.releaseDate,
+        genre: novoProduto.genre,
+        category: novoProduto.category,
+        currency: novoProduto.currency,
+        price: parseFloat(novoProduto.price),
+        imageURL: novoProduto.imageURL,
+      },
+      {
+        headers: {
+          "X-User-Id": headers.userId,
+          "X-User-Email": headers.userEmail,
+          "X-User-Type": headers.userType,
+        },
+      },
+    );
   },
 
   update: async (id, dadosAtualizados, headers) => {
