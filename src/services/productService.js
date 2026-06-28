@@ -29,38 +29,36 @@ export const productService = {
     });
   },
 
-  update: async (id, dadosAtualizados) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        produtosMemoria = produtosMemoria.map((p) =>
-          p.id === id
-            ? {
-                ...p,
-                titulo: dadosAtualizados.titulo,
-                artista: dadosAtualizados.artista,
-                preco: parseFloat(dadosAtualizados.preco),
-                imagem: dadosAtualizados.imagem,
-                categoria: dadosAtualizados.categoria || p.categoria,
-                descricao: dadosAtualizados.descricao || p.descricao,
-              }
-            : p,
-        );
-        resolve(true);
-      }, 400);
-    });
+  update: async (id, dadosAtualizados, headers) => {
+    return productsApi.put(
+      `/ws/products/${id}`,
+      {
+        title: dadosAtualizados.title,
+        artist: dadosAtualizados.artist,
+        releaseDate: dadosAtualizados.releaseDate,
+        genre: dadosAtualizados.genre,
+        category: dadosAtualizados.category,
+        currency: dadosAtualizados.currency,
+        price: parseFloat(dadosAtualizados.price),
+        imageURL: dadosAtualizados.imageURL,
+      },
+      {
+        headers: {
+          "X-User-Id": headers.userId,
+          "X-User-Email": headers.userEmail,
+          "X-User-Type": headers.userType,
+        },
+      },
+    );
   },
 
-  delete: async (id) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const produtoParaDeletar = produtosMemoria.find((p) => p.id === id);
-        if (produtoParaDeletar) {
-          produtosDeletadosMemoria.push(produtoParaDeletar);
-        }
-
-        produtosMemoria = produtosMemoria.filter((p) => p.id !== id);
-        resolve(true);
-      }, 400);
+  delete: async (id, headers) => {
+    return productsApi.delete(`/ws/products/${id}`, {
+      headers: {
+        "X-User-Id": headers.userId,
+        "X-User-Email": headers.userEmail,
+        "X-User-Type": headers.userType,
+      },
     });
   },
   getDeleted: async () => {
