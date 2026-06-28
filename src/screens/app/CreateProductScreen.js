@@ -31,6 +31,7 @@ export default function CreateProductScreen({ navigation }) {
     releaseDate: "",
     imageURL: "",
     currency: "USD",
+    description: "",
   });
   const [salvando, setSalvando] = useState(false);
 
@@ -102,6 +103,20 @@ export default function CreateProductScreen({ navigation }) {
               onChangeText={(t) => setForm({ ...form, artist: t })}
               placeholder="Ex: The Beatles"
               placeholderTextColor={theme.textSecondary}
+              editable={!salvando}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.fieldLabel}>DESCRIÇÃO DO PRODUTO</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              value={form.description}
+              onChangeText={(t) => setForm({ ...form, description: t })}
+              placeholder="Detalhes sobre a edição, encarte..."
+              placeholderTextColor={theme.textSecondary}
+              multiline
+              numberOfLines={4}
               editable={!salvando}
             />
           </View>

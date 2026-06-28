@@ -20,6 +20,8 @@ import { CATEGORIES_LABELS } from "../../consts/CategoriesLabels.js";
 export default function ProductScreen({ route, navigation }) {
   const item = route?.params?.item || null;
 
+  console.log("item", item);
+
   const { theme } = useContext(ThemeContext);
   const { addToCart } = useContext(CartContext);
   const { usuario, isAdmin } = useContext(AuthContext);

@@ -23,6 +23,7 @@ export const productService = {
         currency: novoProduto.currency,
         price: parseFloat(novoProduto.price),
         imageURL: novoProduto.imageURL,
+        description: novoProduto.description,
       },
       {
         headers: {
@@ -46,6 +47,7 @@ export const productService = {
         currency: dadosAtualizados.currency,
         price: parseFloat(dadosAtualizados.price),
         imageURL: dadosAtualizados.imageURL,
+        description: dadosAtualizados.description,
       },
       {
         headers: {
