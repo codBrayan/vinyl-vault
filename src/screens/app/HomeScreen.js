@@ -21,8 +21,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { CATEGORIES_LABELS } from "../../consts/CategoriesLabels.js";
 
 export default function HomeScreen({ navigation }) {
-  const { usuario } = useContext(AuthContext);
-  const isAdmin = usuario?.role === "admin";
+  const { isAdmin } = useContext(AuthContext);
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);

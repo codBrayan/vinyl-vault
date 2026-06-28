@@ -22,9 +22,8 @@ export default function ProductScreen({ route, navigation }) {
 
   const { theme } = useContext(ThemeContext);
   const { addToCart } = useContext(CartContext);
-  const { usuario } = useContext(AuthContext);
+  const { usuario, isAdmin } = useContext(AuthContext);
 
-  const isAdmin = usuario?.role === "admin";
   const userId = usuario?.id;
 
   const [quantity, setQuantity] = useState(1);
