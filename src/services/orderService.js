@@ -18,13 +18,24 @@ export const orderService = {
     });
   },
 
-  getAllOrders: async (currency = "BRL", page = 0, size = 100) => {
+  getAllOrders: async (currency = "BRL", page = 0, size = 100, headers) => {
     return ordersApi.get("/ws/orders", {
       params: { targetCurrency: currency, page, size },
+      headers: {
+        "X-User-Id": headers.userId,
+        "X-User-Email": headers.userEmail,
+        "X-User-Type": headers.userType,
+      },
     });
   },
 
-  finalizeOrder: async (orderId) => {
-    return ordersApi.patch(`/ws/orders/${orderId}/finalize`);
+  finalizeOrder: async (orderId, headers) => {
+    return ordersApi.patch(`/ws/orders/${orderId}/finalize`, null, {
+      headers: {
+        "X-User-Id": headers.userId,
+        "X-User-Email": headers.userEmail,
+        "X-User-Type": headers.userType,
+      },
+    });
   },
 };

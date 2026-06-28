@@ -13,8 +13,10 @@ import {
 import { ThemeContext } from "../../context/ThemeContext.js";
 import { orderService } from "../../services/orderService.js";
 import { Ionicons } from "@expo/vector-icons";
+import { AuthContext } from "../../context/AuthContext.js";
 
 export default function AdminOrderScreen({ navigation }) {
+  const { usuario, isAdmin } = useContext(AuthContext);
   const { theme } = useContext(ThemeContext);
   const styles = createStyles(theme);
 
@@ -23,7 +25,7 @@ export default function AdminOrderScreen({ navigation }) {
   const [updatingId, setUpdatingId] = useState(null);
 
   const [selectedStatus, setSelectedStatus] = useState("Todos");
-  const statusOptions = ["Todos", "Pendente", "Entregue", "Cancelado"];
+  const statusOptions = ["Todos", "Pendente", "Entregue"];
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
@@ -32,11 +34,16 @@ export default function AdminOrderScreen({ navigation }) {
     return unsubscribe;
   }, [navigation]);
 
+  const getHeaders = () => ({
+    userId: usuario?.id,
+    userEmail: usuario?.email,
+    userType: isAdmin ? 0 : 1,
+  });
+
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const data = await orderService.getAllOrders();
-      console.log("data", data);
+      const data = await orderService.getAllOrders("BRL", 0, 100, getHeaders());
       setPedidos(data?.content || []);
     } catch (error) {
       console.error("Error loading orders: ", error);
@@ -47,7 +54,7 @@ export default function AdminOrderScreen({ navigation }) {
   };
 
   const handleUpdateStatus = (pedido) => {
-    if (pedido.status !== "Pendente") return;
+    if (pedido.finalized) return;
 
     Alert.alert(
       "Atualizar Status",
@@ -59,14 +66,14 @@ export default function AdminOrderScreen({ navigation }) {
           onPress: async () => {
             setUpdatingId(pedido.id);
             try {
-              await orderService.updateOrderStatus(pedido.id, "Entregue");
+              await orderService.finalizeOrder(pedido.id, getHeaders());
               setPedidos((prev) =>
                 prev.map((p) =>
-                  p.id === pedido.id ? { ...p, status: "Entregue" } : p,
+                  p.id === pedido.id ? { ...p, finalized: true } : p,
                 ),
               );
             } catch (error) {
-              Alert.alert("Erro", "Falha ao atualizar status no servidor.");
+              Alert.alert("Erro", "Falha ao finalizar o pedido.");
             } finally {
               setUpdatingId(null);
             }
@@ -76,53 +83,44 @@ export default function AdminOrderScreen({ navigation }) {
     );
   };
 
-  const filteredOrders = pedidos.filter(
-    (pedido) => selectedStatus === "Todos" || pedido.status === selectedStatus,
-  );
+  const filteredOrders = pedidos.filter((pedido) => {
+    if (selectedStatus === "Todos") return true;
+    if (selectedStatus === "Entregue") return pedido.finalized === true;
+    if (selectedStatus === "Pendente") return pedido.finalized === false;
+    return true;
+  });
 
   const renderPedido = ({ item }) => (
     <View style={styles.cardPedido}>
       <View style={styles.headerPedido}>
         <Text style={styles.textoData}>
-          Pedido #{item.id} • {item.data}
+          Pedido #{item.id} • {item.orderDate}
         </Text>
 
         <View
           style={[
             styles.badge,
-            item.status === "Pendente"
-              ? styles.badgePendente
-              : item.status === "Cancelado"
-                ? styles.badgeCancelado
-                : styles.badgeEntregue,
+            item.finalized ? styles.badgeEntregue : styles.badgePendente,
           ]}
         >
-          <Text style={styles.statusTexto}>{item.status}</Text>
+          <Text style={styles.statusTexto}>
+            {item.finalized ? "Entregue" : "Pendente"}
+          </Text>
         </View>
       </View>
 
-      <View style={styles.clienteContainer}>
-        <Ionicons
-          name="person-circle-outline"
-          size={18}
-          color={theme.textSecondary}
-        />
-        <View style={styles.clienteDados}>
-          <Text style={styles.textoCliente}>{item.cliente}</Text>
-          <Text style={styles.textoEmail}>{item.emailCliente}</Text>
-        </View>
-      </View>
-
-      <Text style={styles.textoItens} numberOfLines={3}>
-        {item.itens}
-      </Text>
+      {item.items?.map((p) => (
+        <Text key={p.id} style={styles.textoItens} numberOfLines={2}>
+          📦 {p.quantity}x {p.product?.title}
+        </Text>
+      ))}
 
       <View style={styles.footerPedido}>
         <Text style={styles.textoTotal}>
-          Total: R$ {item.total.toFixed(2).replace(".", ",")}
+          Total: R$ {item.totalConvertedPrice?.toFixed(2).replace(".", ",")}
         </Text>
 
-        {item.status === "Pendente" && (
+        {!item.finalized && (
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => handleUpdateStatus(item)}
