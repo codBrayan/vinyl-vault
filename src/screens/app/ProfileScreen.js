@@ -47,16 +47,7 @@ export default function ProfileScreen({ navigation }) {
       </View>
 
       <View style={styles.menuContainer}>
-        {isAdmin ? (
-          <>
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => navigation.navigate("DeletedProducts")}
-            >
-              <Text style={styles.menuItemText}>Produtos deletados</Text>
-            </TouchableOpacity>
-          </>
-        ) : (
+        {isAdmin ? null : (
           <>
             <TouchableOpacity
               style={styles.menuItem}
