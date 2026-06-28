@@ -18,7 +18,7 @@ export const orderService = {
     });
   },
 
-  getAllOrders: async () => {
+  getAllOrders: async (currency = "BRL", page = 0, size = 100) => {
     return ordersApi.get("/ws/orders", {
       params: { targetCurrency: currency, page, size },
     });

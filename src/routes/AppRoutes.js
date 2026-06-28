@@ -14,7 +14,6 @@ import CreateProductScreen from "../screens/app/CreateProductScreen.js";
 import EditProductScreen from "../screens/app/EditProductScreen.js";
 import FavoritesScreen from "../screens/app/FavoritesScreen.js";
 import UserOrdersScreen from "../screens/app/UserOrdersScreen.js";
-import AdminOrderScreen from "../screens/app/AdminOrderScreen.js";
 import DeletedProductsScreen from "../screens/app/DeletedProductsScreen.js";
 
 const Stack = createStackNavigator();
@@ -47,17 +46,7 @@ export function TabRoutes() {
         }}
       />
 
-      {isAdmin ? (
-        <Tab.Screen
-          name="Pedidos"
-          component={AdminOrderScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="list" color={color} size={size} />
-            ),
-          }}
-        />
-      ) : (
+      {isAdmin ? null : (
         <Tab.Screen
           name="Carrinho"
           component={CartScreen}
